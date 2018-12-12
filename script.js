@@ -319,12 +319,19 @@ class MainGame extends Phaser.Scene{
 
         sceneGone = true;
         if (localStorage.getItem("scores") === null) {
-          localStorage.setItem("scores",[])
+          var a = [0];
+          localStorage.setItem("scores",JSON.stringify(a))
         }
-        var storedScroes = localStorage.getItem("scores")
-        scores.push(score);
-        scores.sort();
-
+        // if(localStorage.getItem('scores') != "")
+        // {
+        //
+        // }
+        var storedScores = JSON.parse(localStorage.getItem("scores"));
+        storedScores.push(score);
+        storedScores.sort();
+        storedScores = storedScores.reverse();
+        storedScores = storedScores.slice(0,10);
+        localStorage.setItem('scores',JSON.stringify(storedScores));
           this.scene.stop("MainGame");
           this.scene.start("GameOver");
           snake.alive = true;
@@ -370,16 +377,48 @@ class GameOver extends Phaser.Scene{
   }
   create()
   {
-
+    var leaderboard;
     var graphics = this.add.graphics();
     graphics.fillStyle(0x000000,1);
     graphics.fillRect(0,0,1024,768);
     this.add.text(250,16,score,{fill:'#ffffff'});
     this.add.text(100,0,"Top 10",{fill:'#ffffff'});
-    this.add.text(100,16,localStorage.getItem('score'),{fill:'#ffffff'});
+    var scores = JSON.parse(localStorage.getItem('scores'));
+
+    for(var i = 0; i < scores.length; i++)
+    {
+      if(score == scores[i])
+      {
+        leaderboard = true;
+      }
+    }
+    if(leaderboard)
+    {
+      var dodo = prompt("Enter Your name. you got a top 10 score", "name");
+      console.log(dodo);
+    }
+
+    var newScore =
+    {
+        score1:score,
+        name:dodo
+    };
+    for(var i = 0; i < scores.length; i++)
+    {
+      if(score == scores[i])
+      {
+        leaderboard = true;
+      }
+      this.add.text(100,(i+1)*20,scores[i] + dodo,{fill:'#ffffff'});
+    }
     var butt = this.add.sprite(512,384,'die');
     butt.setInteractive();
      butt.on('pointerdown', () => this.changeScene());
+     if(score == scores[0])
+     {
+      this.add.sprite(512,100,'cool');
+     }
+
   }
 
   update()
@@ -395,7 +434,8 @@ class GameOver extends Phaser.Scene{
   }
     preload()
     {
-      this.load.image("die","dead.png")
+      this.load.image('cool',"highscore.png");
+      this.load.image("die","dead.png");
     }
 }
 
